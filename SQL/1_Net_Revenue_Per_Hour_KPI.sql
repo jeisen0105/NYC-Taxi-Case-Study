@@ -79,11 +79,14 @@ ON t.PULocationID = taxi_zone_lookup.LocationID
 WHERE
     -- Filter out any trips lasting 5 minutes or less to prevent short trips from skewing the per hour rate
     TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) > 5
-    -- Filter only for the peak days (Monday=2 to Friday=6)
-    AND NOT EXTRACT(DAYOFWEEK FROM t.tpep_pickup_datetime) BETWEEN 2 AND 6 
-             -- Also filter for only peak hours (7-9 AM or 4-6 PM)
+    -- Correctly define Off-Peak as everything NOT in the Peak window
+    AND NOT (
+        -- Weekdays
+        EXTRACT(DAYOFWEEK FROM t.tpep_pickup_datetime) BETWEEN 2 AND 6 
+        -- AND Rush Hours
         AND EXTRACT(HOUR FROM t.tpep_pickup_datetime) IN (7, 8, 9, 16, 17, 18)
-
+    )
+    
 -- Group by the Zone, Borough, and Time Segment (using column numbers 1, 2, 3)
 GROUP BY
     1, 2, 3
