@@ -37,8 +37,9 @@ WHERE
 GROUP BY
     1, 2, 3
 HAVING
-    -- Filter out zones with unrealistically high averages (Adjusted for tips)
-    avg_total_earnings_per_hour < 180
+    -- Filter out zones with unrealistically high averages and total trips under 100 (Adjusted for tips)
+    COUNT(*) > 10000
+    AND avg_total_earnings_per_hour < 180
     AND avg_total_earnings_per_mile < 60
 ORDER BY
     avg_total_earnings_per_hour DESC
@@ -86,8 +87,9 @@ WHERE
 GROUP BY
     1, 2, 3
 HAVING
-    -- Filter out zones with unrealistically high averages (Adjusted for tips)
-    avg_total_earnings_per_hour < 180
+    -- Filter out zones with unrealistically high averages and total trips under 100 (Adjusted for tips)
+    COUNT(*) > 10000
+    AND avg_total_earnings_per_hour < 180
     AND avg_total_earnings_per_mile < 60
 ORDER BY
     avg_total_earnings_per_hour DESC
