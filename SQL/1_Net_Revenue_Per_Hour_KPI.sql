@@ -1,5 +1,26 @@
+-------------------------------------------------------------------
+-- OVERALL CITYWIDE AVERAGE RPH (UNSEGMENTED BASELINE)
+-- Calculates the average RPH for all valid trips in the dataset.
+-------------------------------------------------------------------
+SELECT
+    'Citywide' AS pickup_zone,      
+    'All Boroughs' AS pickup_borough,
+    'All Hours' AS time_segment,
+    
+    -- Calculation: Total Earnings (Fare + Tip) / Total Driving Hours
+    SUM(t.total_amount + t.tip_amount) / SUM(TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) / 60.0) AS overall_avg_rph,
+    
+    COUNT(*) AS total_trips
+
+FROM
+    `nyc-taxi-478617.2024_data.yellow_trips_2024_combined` AS t
+
+WHERE
+    -- Data Quality Filters: Trips must be between 5 minutes and 180 minutes
+    TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) BETWEEN 5 AND 180;
+
 -----------------------------------------------------------------------
--- QUERY 1: TOP 10 PEAK HOUR ZONES (Measuring Total Earnings: Fare + Tip)
+-- TOP 10 PEAK HOUR ZONES (Measuring Total Earnings: Fare + Tip)
 -----------------------------------------------------------------------
 SELECT
     -- Zone and Borough for identification
@@ -25,10 +46,9 @@ JOIN
     `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS taxi_zone_lookup
 ON t.PULocationID = taxi_zone_lookup.LocationID
 
+-- Data Quality Filters: Trips must be between 5 minutes and 180 minutes
 WHERE
-    -- Data Quality Filters: Trips must be between 5 minutes and 180 minutes
-    TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) > 5
-    AND TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) < 180
+    TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) BETWEEN 5 AND 180
 
     -- Time Segment Filters (Peak: M-F, 6-10 AM & 4-8 PM)
     AND EXTRACT(DAYOFWEEK FROM t.tpep_pickup_datetime) BETWEEN 2 AND 6
@@ -44,8 +64,9 @@ HAVING
 ORDER BY
     avg_total_earnings_per_hour DESC
 LIMIT 10;
+
 -----------------------------------------------------------------------
--- QUERY 2: TOP 10 OFF-PEAK ZONES (Measuring Total Earnings: Fare + Tip)
+--  TOP 10 OFF-PEAK ZONES (Measuring Total Earnings: Fare + Tip)
 -----------------------------------------------------------------------
 SELECT
     -- Zone and Borough for identification
@@ -73,8 +94,7 @@ ON t.PULocationID = taxi_zone_lookup.LocationID
 
 WHERE
     -- Data Quality Filters: Trips must be between 5 minutes and 180 minutes
-    TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) > 5
-    AND TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) < 180
+    TIMESTAMP_DIFF(t.tpep_dropoff_datetime, t.tpep_pickup_datetime, MINUTE) BETWEEN 5 AND 180
 
     -- Time Segment Filters (Corrected Off-Peak: Everything NOT Peak)
     AND NOT (
