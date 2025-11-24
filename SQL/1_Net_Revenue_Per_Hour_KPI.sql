@@ -4,7 +4,6 @@
 -------------------------------------------------------------------
 SELECT
     'Citywide' AS pickup_zone,      
-    'All Boroughs' AS pickup_borough,
     'All Hours' AS time_segment,
     
     -- Calculation: Total Earnings (Fare + Tip) / Total Driving Hours
