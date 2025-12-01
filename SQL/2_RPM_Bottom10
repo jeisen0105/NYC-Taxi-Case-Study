@@ -1,0 +1,38 @@
+BOTTOM 10
+
+SELECT
+  -- 1. Geographic Identifier
+  tpu.Zone AS pickup_zone,
+  
+  -- 2. Temporal Identifiers (Converted for Readability)
+  CASE EXTRACT(DAYOFWEEK FROM t.tpep_pickup_datetime)
+    WHEN 1 THEN 'Sunday'
+    WHEN 2 THEN 'Monday'
+    WHEN 3 THEN 'Tuesday'
+    WHEN 4 THEN 'Wednesday'
+    WHEN 5 THEN 'Thursday'
+    WHEN 6 THEN 'Friday'
+    WHEN 7 THEN 'Saturday'
+  END AS day_name,
+  EXTRACT(HOUR FROM t.tpep_pickup_datetime) AS pickup_hour,
+  
+  -- 3. Volume and Efficiency Metrics
+  COUNT(1) AS total_trips_in_segment,
+  AVG(t.calculated_total_amount / t.trip_duration_minutes) AS average_rpm_usd_per_min
+  
+FROM
+  `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
+JOIN
+  `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS tpu
+  ON t.PULocationID = tpu.LocationID
+  
+GROUP BY 1, 2, 3
+  
+-- Filter: Ensure statistical relevance (at least 1,000 trips) to capture bottlenecks
+HAVING
+  COUNT(1) >= 5000 
+  
+ORDER BY 
+  average_rpm_usd_per_min ASC -- Finds the lowest-RPM segments
+  
+LIMIT 10;
