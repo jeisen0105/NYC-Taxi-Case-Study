@@ -1,0 +1,35 @@
+
+TOP 10 ZONES
+    
+SELECT
+  tpu.Zone AS pickup_zone,
+  EXTRACT(DAYOFWEEK FROM tpep_pickup_datetime) AS day_of_week, -- 1=Sunday, 7=Saturday
+  EXTRACT(HOUR FROM tpep_pickup_datetime) AS pickup_hour,
+  COUNT(1) AS total_trips_in_segment,
+  -- The core metric: Revenue Per Minute
+  AVG(calculated_total_amount / trip_duration_minutes) AS avg_rpm
+FROM
+  `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
+JOIN
+  `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS tpu
+  ON t.PULocationID = tpu.LocationID
+GROUP BY 1, 2, 3
+-- Filter the results *after* aggregation (COUNT)
+HAVING
+  COUNT(1) >= 15000 
+ORDER BY 5 DESC -- Order by highest RPM to find the most profitable high-volume segments
+LIMIT 10;
+
+CITYWIDE AVERAGE
+
+SELECT
+  -- Calculate the citywide average RPM
+  AVG(calculated_total_amount / trip_duration_minutes) AS citywide_average_rpm,
+  
+  -- Total trips analyzed for context (should be ~31 million)
+  COUNT(1) AS total_trips_analyzed,
+  
+  -- Average trip duration for context
+  AVG(trip_duration_minutes) AS average_trip_duration_minutes
+FROM
+  `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned`;
