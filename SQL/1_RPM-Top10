@@ -37,17 +37,3 @@ ORDER BY
   average_rpm_usd_per_min DESC -- Finds the highest-RPM segments
   
 LIMIT 10;
-
-CITYWIDE AVERAGE
-
-SELECT
-  -- Calculate the citywide average RPM
-  AVG(calculated_total_amount / trip_duration_minutes) AS citywide_average_rpm,
-  
-  -- Total trips analyzed for context (should be ~31 million)
-  COUNT(1) AS total_trips_analyzed,
-  
-  -- Average trip duration for context
-  AVG(trip_duration_minutes) AS average_trip_duration_minutes
-FROM
-  `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned`;
