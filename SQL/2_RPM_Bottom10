@@ -1,5 +1,3 @@
-BOTTOM 10
-
 SELECT
   -- 1. Geographic Identifier
   tpu.Zone AS pickup_zone,
@@ -18,7 +16,9 @@ SELECT
   
   -- 3. Volume and Efficiency Metrics
   COUNT(1) AS total_trips_in_segment,
-  AVG(t.calculated_total_amount / t.trip_duration_minutes) AS average_rpm_usd_per_min
+  
+  -- **CHANGED: Calculate the Median RPM (50th percentile)**
+  APPROX_QUANTILES(t.calculated_total_amount / t.trip_duration_minutes, 2)[OFFSET(1)] AS median_rpm_usd_per_min
   
 FROM
   `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
@@ -28,11 +28,12 @@ JOIN
   
 GROUP BY 1, 2, 3
   
--- Filter: Ensure statistical relevance (at least 1,000 trips) to capture bottlenecks
+-- Filter: Ensure statistical relevance 
 HAVING
   COUNT(1) >= 5000 
   
 ORDER BY 
-  average_rpm_usd_per_min ASC -- Finds the lowest-RPM segments
+  -- **CHANGED: Order by the new Median RPM column**
+  median_rpm_usd_per_min ASC -- Finds the lowest-Median-RPM segments
   
 LIMIT 10;
