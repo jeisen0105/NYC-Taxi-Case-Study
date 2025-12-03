@@ -1,10 +1,11 @@
-CITYWIDE AVERAGE
-
 SELECT
-  -- Calculate the citywide average RPM
-  AVG(calculated_total_amount / trip_duration_minutes) AS citywide_average_rpm,
+  -- **CHANGED: Calculate the citywide Median RPM (50th percentile)**
+  APPROX_QUANTILES(calculated_total_amount / trip_duration_minutes, 2)[OFFSET(1)] AS citywide_median_rpm,
   
-  -- Total trips analyzed for context (should be ~31 million)
+  -- Calculate the traditional Mean RPM for comparison and context
+  AVG(calculated_total_amount / trip_duration_minutes) AS citywide_mean_rpm,
+
+  -- Total trips analyzed for context
   COUNT(1) AS total_trips_analyzed,
   
   -- Average trip duration for context
