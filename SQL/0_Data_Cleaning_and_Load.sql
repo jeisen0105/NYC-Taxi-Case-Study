@@ -30,7 +30,13 @@ SELECT
   ) AS calculated_total_amount,
   
   -- Calculate trip duration for analysis
-  TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE) AS trip_duration_minutes
+  TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE) AS trip_duration_minutes,
+
+  -- **NEW CALCULATION: REVENUE PER MINUTE (RPM)**
+  (
+    fare_amount + extra + mta_tax + tip_amount + tolls_amount + improvement_surcharge + congestion_surcharge + Airport_fee
+  ) / NULLIF(TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE), 0) AS revenue_per_minute
+  
 FROM
   `nyc-taxi-478617.2024_data.yellow_trips_2024_combined`
 WHERE
