@@ -1,0 +1,31 @@
+SELECT
+    t1.PULocationID AS LocationID,
+    
+    -- 1. Metric: Calculate Median RPM
+    APPROX_QUANTILES(t1.revenue_per_minute, 100)[OFFSET(50)] AS median_rpm_per_zone,
+    
+    -- 2. Calculate the number of rides in the zone
+    COUNT(*) AS number_of_rides,
+    
+    -- 3. Zone Name
+    ANY_VALUE(t3.Zone) AS ZoneName, 
+    
+    -- 4. Geometry
+    ANY_VALUE(ST_ASGEOJSON(t2.zone_geom)) AS zone_geojson
+FROM
+    -- Use the cleaned table where RPM is calculated per ride
+    `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t1 
+INNER JOIN
+    -- Geometry table (t2)
+    `nyc-taxi-478617.2024_data.taxi_zone_geom` AS t2 
+    ON t1.PULocationID = CAST(t2.zone_id AS INT64)
+LEFT JOIN
+    -- Zone Name Lookup Table (t3)
+    `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS t3 
+    ON t1.PULocationID = t3.LocationID
+GROUP BY
+    LocationID 
+HAVING
+    COUNT(*) > 5 -- <-- NEW FILTER: Only include zones with more than 5 rides
+ORDER BY
+    median_rpm_per_zone DESC
