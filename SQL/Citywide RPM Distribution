@@ -28,13 +28,19 @@ SELECT
 FROM
     Single_Trip_Metrics AS t
 CROSS JOIN
-    Citywide_Aggregates AS a -- CROSS JOIN attaches the single aggregate row to every grouped row
+    Citywide_Aggregates AS a
+    
+-- ************************************************************
+-- ADDED FILTER: Ensures the histogram only goes up to the 4.9 bin
+-- ************************************************************
+WHERE
+    t.RPM_Start_Bin <= 4.9
     
 GROUP BY
-    t.RPM_Start_Bin, a.Citywide_Median_RPM, a.Citywide_Mean_RPM -- Group by the bin and the joined aggregates
+    t.RPM_Start_Bin, a.Citywide_Median_RPM, a.Citywide_Mean_RPM
     
 HAVING
     SUM(t.Trip_Count) >= 100 
 
 ORDER BY
-    t.RPM_Start_Bin ASC;Cit
+    t.RPM_Start_Bin ASC;
