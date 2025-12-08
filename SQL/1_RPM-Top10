@@ -36,6 +36,6 @@ HAVING
     COUNT(1) >= 100000 
     
 ORDER BY 
-    median_rpm_usd_per_min ASC -- Use ASC for the Bottom 10 list
+    median_rpm_usd_per_min DESC -- Use ASC for the Bottom 10 list
 -- To get the Top 10 list, you would change this to DESC and change the LIMIT to 10
 LIMIT 10;
