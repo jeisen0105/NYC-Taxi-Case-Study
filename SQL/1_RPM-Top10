@@ -1,39 +1,41 @@
 SELECT
-  -- 1. Geographic Identifier
-  tpu.Zone AS pickup_zone,
-  
-  -- 2. Temporal Identifiers (Converted for Readability)
-  CASE EXTRACT(DAYOFWEEK FROM t.tpep_pickup_datetime)
-    WHEN 1 THEN 'Sunday'
-    WHEN 2 THEN 'Monday'
-    WHEN 3 THEN 'Tuesday'
-    WHEN 4 THEN 'Wednesday'
-    WHEN 5 THEN 'Thursday'
-    WHEN 6 THEN 'Friday'
-    WHEN 7 THEN 'Saturday'
-  END AS day_name,
-  EXTRACT(HOUR FROM t.tpep_pickup_datetime) AS pickup_hour,
-  
-  -- 3. Volume and Efficiency Metrics
-  COUNT(1) AS total_trips_in_segment,
-  
-  -- **CHANGED: Calculate the Median RPM (50th percentile)**
-  APPROX_QUANTILES(t.calculated_total_amount / t.trip_duration_minutes, 2)[OFFSET(1)] AS median_rpm_usd_per_min
-  
+    -- 1. Geographic Identifier
+    tpu.Zone AS pickup_zone,
+    
+    -- 2. Temporal Identifier (Day Only)
+    CASE EXTRACT(DAYOFWEEK FROM t.tpep_pickup_datetime)
+        WHEN 1 THEN 'Sunday'
+        WHEN 2 THEN 'Monday'
+        WHEN 3 THEN 'Tuesday'
+        WHEN 4 THEN 'Wednesday'
+        WHEN 5 THEN 'Thursday'
+        WHEN 6 THEN 'Friday'
+        WHEN 7 THEN 'Saturday'
+    END AS day_name,
+    
+    -- 3. Volume and Efficiency Metrics
+    COUNT(1) AS total_trips_in_segment,
+    
+    -- Calculate the Median RPM (50th percentile)
+    APPROX_QUANTILES(t.calculated_total_amount / t.trip_duration_minutes, 2)[OFFSET(1)] AS median_rpm_usd_per_min
+    
 FROM
-  `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
+    `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
 JOIN
-  `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS tpu
-  ON t.PULocationID = tpu.LocationID
-  
-GROUP BY 1, 2, 3
-  
--- Filter: Ensure high commercial impact (at least 15,000 trips)
+    `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS tpu
+    ON t.PULocationID = tpu.LocationID
+    
+WHERE
+    t.trip_duration_minutes > 1.0 
+    AND t.calculated_total_amount > 2.0 
+
+GROUP BY 1, 2 -- ***CRUCIAL: Grouping only by Zone and Day***
+    
+-- Filter: Set a high volume threshold for executive relevance (e.g., 200,000 trips)
 HAVING
-  COUNT(1) >= 5000
-  
+    COUNT(1) >= 100000 
+    
 ORDER BY 
-  -- **CHANGED: Order by the new Median RPM column**
-  median_rpm_usd_per_min DESC -- Finds the highest-Median-RPM segments
-  
+    median_rpm_usd_per_min ASC -- Use ASC for the Bottom 10 list
+-- To get the Top 10 list, you would change this to DESC and change the LIMIT to 10
 LIMIT 10;
