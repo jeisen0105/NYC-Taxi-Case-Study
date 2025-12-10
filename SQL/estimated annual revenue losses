@@ -1,0 +1,13 @@
+SELECT
+    SUM(
+        -- Calculation: (Target RPM - Actual RPM) * Trip Duration (Minutes)
+        (1.89 - (t.calculated_total_amount / t.trip_duration_minutes)) * t.trip_duration_minutes
+    ) AS Total_Estimated_Annual_Revenue_Loss
+    
+FROM
+    `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
+
+WHERE
+    t.trip_duration_minutes > 1.0 
+    AND t.calculated_total_amount > 2.0 
+    AND (t.calculated_total_amount / t.trip_duration_minutes) < 1.89
