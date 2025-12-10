@@ -1,5 +1,5 @@
 /*
-  ANALYSIS FILE: 03_CITYWIDE_RPM_DISTRIBUTION.sql (Beginner Version)
+  ANALYSIS FILE: 03_CITYWIDE_RPM_DISTRIBUTION.sql
   Purpose: Groups trips into $0.10 RPM bins to create the Histogram visualization.
 */
 SELECT
