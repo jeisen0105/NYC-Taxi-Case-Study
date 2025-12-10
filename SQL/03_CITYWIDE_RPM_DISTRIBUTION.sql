@@ -1,3 +1,9 @@
+/*
+  ANALYSIS FILE: 03_CITYWIDE_RPM_DISTRIBUTION.sql
+  Purpose: Generates the aggregated data necessary to plot the Citywide RPM Histogram.
+           This visualization is critical for showing *where* the bulk of trip volume
+           falls relative to the $1.89 policy target.
+*/
 WITH Citywide_Aggregates AS (
     -- 1. Calculate the Median and Mean for the entire dataset once.
     SELECT
