@@ -2,7 +2,6 @@
   DATA CLEANING AND FEATURE ENGINEERING: YELLOW CAB 2024 TRIPS
   Purpose: Creates the clean, foundation table for operational efficiency analysis 
            by filtering statistical noise and correcting financial integrity issues.
-  Output Table: nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned
 */
 CREATE OR REPLACE TABLE
   `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned`
