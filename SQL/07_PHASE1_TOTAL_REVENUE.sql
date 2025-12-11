@@ -1,5 +1,5 @@
 /*
- ANALYSIS FILE: 07_PHASE1_TOTAL_REVENUE_FINAL.sql
+ ANALYSIS FILE: 07_PHASE1_TOTAL_REVENUE.sql
  PURPOSE: Calculates the Total Project Revenue (A + B) for the Phase 1 Pilot.
 */
 
