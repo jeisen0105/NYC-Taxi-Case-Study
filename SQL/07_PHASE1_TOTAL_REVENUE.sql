@@ -6,18 +6,16 @@
 WITH Surcharge_Revenue AS (
     -- Calculates the funding mechanism (A)
     SELECT
-        -- Surcharge Revenue: Total trips * $1.00 Surcharge * 85% Retention Factor
-        SUM(t.total_trips_in_segment * 0.85) AS A_Total_Surcharge_Revenue
+        -- Surcharge Revenue: Total trips * $0.99 Surcharge * 85% Retention Factor ($0.8415)
+        SUM(t.total_trips_in_segment * 0.8415) AS A_Total_Surcharge_Revenue
     FROM
         `nyc-taxi-478617.2024_data.top_10_segments_roi` AS t
 ),
 
 Recovered_Revenue AS (
-    -- Calculates the profit mechanism (B)
+    -- Calculates the profit mechanism (B) - Note: This section remains unchanged.
     SELECT
         SUM(
-            -- Calculation: (Trip Duration) * (Total Trips) * (Current OPERATIONAL RPM) * (5% Increase Factor)
-            -- NOTE: The RPM column name is updated to the tip-exclusive metric.
             b.average_trip_duration_minutes * b.total_trips_in_segment * b.median_operational_rpm_usd_per_min * 0.05
         ) AS B_Total_Recovered_Revenue
     FROM
