@@ -1,14 +1,16 @@
 /*
   ANALYSIS FILE: 05_RPM_PERFORMANCE_ZONES.sql (Beginner Focus)
   Purpose: Aggregates performance metrics by Pickup Zone to visualize efficiency on a map.
-           This data is used to classify zones as 'Loss' (Red) or 'Profit' (Green) centers.
+           This data is used to classify zones as 'Loss' (Red) or 'Profit' (Green) centers,
+           based on the OPERATIONAL RPM.
 */
 SELECT
     -- Geographic Identifier 
     t1.PULocationID AS LocationID,
     
-    -- Core Metric: Calculate the Zone Median RPM
-    APPROX_QUANTILES(t1.revenue_per_minute, 100)[OFFSET(50)] AS median_rpm_per_zone,
+    -- Core Metric: Calculate the Zone Median OPERATIONAL RPM
+    -- NOTE: Using the tip-exclusive metric: operational_revenue_per_minute
+    APPROX_QUANTILES(t1.operational_revenue_per_minute, 100)[OFFSET(50)] AS median_operational_rpm_per_zone,
     
     -- Volume Metric: Total number of trips
     COUNT(*) AS number_of_rides,
@@ -38,4 +40,4 @@ HAVING
     COUNT(*) > 5
 
 ORDER BY
-    median_rpm_per_zone DESC;
+    median_operational_rpm_per_zone DESC;
