@@ -7,7 +7,7 @@
 SELECT
     -- Calculation: SUM [Trip Duration * Current RPM * 5% Increase Factor] for every trip
     SUM(
-        t.trip_duration_minutes * t.median_rpm_usd_per_min * 0.05
+        t.trip_duration_minutes * t.revenue_per_minute * 0.05
     ) AS D_Total_Phase2_Recovered_Revenue
 FROM
     `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t;
