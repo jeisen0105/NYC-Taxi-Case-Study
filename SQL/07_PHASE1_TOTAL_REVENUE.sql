@@ -1,13 +1,13 @@
 /*
- ANALYSIS FILE: 07_PHASE1_TOTAL_REVENUE.sql
- PURPOSE: Calculates the Total Project Revenue (A + B) for the Phase 1 Pilot.
+  ANALYSIS FILE: 07_PHASE1_TOTAL_REVENUE.sql
+  PURPOSE: Calculates the Total Project Revenue (A + B) for the Phase 1 Pilot.
 */
 
 WITH Surcharge_Revenue AS (
     -- Calculates the funding mechanism (A)
     SELECT
-        -- UPDATED to $1.00 Surcharge
-        SUM(t.total_trips_in_segment * .85) AS A_Total_Surcharge_Revenue
+        -- Surcharge Revenue: Total trips * $1.00 Surcharge * 85% Retention Factor
+        SUM(t.total_trips_in_segment * 0.85) AS A_Total_Surcharge_Revenue
     FROM
         `nyc-taxi-478617.2024_data.top_10_segments_roi` AS t
 ),
@@ -16,8 +16,9 @@ Recovered_Revenue AS (
     -- Calculates the profit mechanism (B)
     SELECT
         SUM(
-            -- Calculation: (Trip Duration) * (Total Trips) * (Current RPM) * (5% Increase Factor)
-            b.average_trip_duration_minutes * b.total_trips_in_segment * b.median_rpm_usd_per_min * 0.05
+            -- Calculation: (Trip Duration) * (Total Trips) * (Current OPERATIONAL RPM) * (5% Increase Factor)
+            -- NOTE: The RPM column name is updated to the tip-exclusive metric.
+            b.average_trip_duration_minutes * b.total_trips_in_segment * b.median_operational_rpm_usd_per_min * 0.05
         ) AS B_Total_Recovered_Revenue
     FROM
         `nyc-taxi-478617.2024_data.bottom_10_segments_roi` AS b
