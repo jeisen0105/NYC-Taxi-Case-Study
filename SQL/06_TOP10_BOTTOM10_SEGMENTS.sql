@@ -1,12 +1,12 @@
 /*
   ANALYSIS FILE: 06_TOP10_BOTTOM10_SEGMENTS.sql
   Purpose: Generates the two prioritized lists for the Phase 1 intervention strategy:
-           1. TOP 10 FUNDING: Highest RPM segments (for Surcharge proposal).
-           2. BOTTOM 10 FIX: Highest Crisis Count segments (for Intervention proposal).
+           1. TOP 10 FUNDING: Highest OPERATIONAL RPM segments (for Surcharge proposal).
+           2. BOTTOM 10 FIX: Lowest OPERATIONAL RPM segments (for Intervention proposal).
 */
 
 -- #######################################################################
--- ### QUERY 1: TOP 10 FUNDING SEGMENTS (ORDERED BY HIGHEST RPM)       ###
+-- ### QUERY 1: TOP 10 FUNDING SEGMENTS (ORDERED BY HIGHEST OPERATIONAL RPM) ###
 -- #######################################################################
 -- This list identifies the most profitable segments to model the Surcharge Revenue.
 
@@ -30,7 +30,7 @@ SELECT
     AVG(t.trip_duration_minutes) AS average_trip_duration_minutes, 
     
     -- Efficiency Metric
-    APPROX_QUANTILES(t.calculated_total_amount / t.trip_duration_minutes, 2)[OFFSET(1)] AS median_rpm_usd_per_min
+    APPROX_QUANTILES(t.operational_revenue_per_minute, 2)[OFFSET(1)] AS median_operational_rpm_usd_per_min
     
 FROM
     `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
@@ -50,11 +50,11 @@ HAVING
     COUNT(1) >= 100000 
     
 ORDER BY 
-    median_rpm_usd_per_min DESC -- Ranks highest RPM first
+    median_operational_rpm_usd_per_min DESC -- Ranks highest RPM first
 LIMIT 10;
 
 -- #######################################################################
--- ### QUERY 2: BOTTOM 10 FIX SEGMENTS (ORDERED BY HIGHEST CRISIS COUNT) ###
+-- ### QUERY 2: BOTTOM 10 FIX SEGMENTS (ORDERED BY LOWEST OPERATIONAL RPM) ###
 -- #######################################################################
 -- This list identifies the most problematic segments to model the Recovery Value.
 
@@ -78,7 +78,7 @@ SELECT
     AVG(t.trip_duration_minutes) AS average_trip_duration_minutes, 
     
     -- Efficiency Metric
-    APPROX_QUANTILES(t.calculated_total_amount / t.trip_duration_minutes, 2)[OFFSET(1)] AS median_rpm_usd_per_min,
+    APPROX_QUANTILES(t.operational_revenue_per_minute, 2)[OFFSET(1)] AS median_operational_rpm_usd_per_min
     
 FROM
     `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
@@ -98,5 +98,5 @@ HAVING
     COUNT(1) >= 100000 
     
 ORDER BY 
-    median_rpm_usd_per_min ASC -- Ranks lowest RPM first
+    median_operational_rpm_usd_per_min ASC -- Ranks lowest RPM first
 LIMIT 10;
