@@ -37,7 +37,7 @@ SELECT
   -- trip_duration_minutes: Calculates time in minutes, essential for RPM metric.
   TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE) AS trip_duration_minutes,
 
-  -- revenue_per_minute: The primary OPERATIONAL KPI for efficiency analysis (EXCLUDING TIP).
+  -- revenue_per_minute: The primary operational KPI for efficiency analysis (EXCLUDING TIP).
   (fare_amount + extra + mta_tax + tolls_amount + improvement_surcharge + congestion_surcharge + Airport_fee) / NULLIF(TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE), 0) AS operational_revenue_per_minute
   
 FROM
