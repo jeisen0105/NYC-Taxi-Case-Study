@@ -5,11 +5,14 @@
 */
 SELECT
   -- *** PRIMARY BENCHMARK (Policy Target) ***
-  -- Calculate the Citywide Median RPM using APPROX_QUANTILES.
-  APPROX_QUANTILES(calculated_total_amount / trip_duration_minutes, 2)[OFFSET(1)] AS citywide_median_rpm,
+  -- Calculate the Citywide Median OPERATIONAL RPM using APPROX_QUANTILES.
+  APPROX_QUANTILES(operational_revenue_per_minute, 2)[OFFSET(1)] AS citywide_median_operational_rpm,
   
-  -- Calculate the traditional Mean RPM.
-  AVG(calculated_total_amount / trip_duration_minutes) AS citywide_mean_rpm,
+  -- Calculate the traditional Mean OPERATIONAL RPM.
+  AVG(operational_revenue_per_minute) AS citywide_mean_operational_rpm,
+
+  -- Optional: Include the Mean of the full calculated amount (including tip) for context
+  AVG(calculated_total_amount / trip_duration_minutes) AS citywide_mean_gross_rpm,
 
   -- *** CONTEXTUAL METRICS ***
   
