@@ -26,19 +26,19 @@ SELECT
   tolls_amount,
   improvement_surcharge, 
   
-  -- total_amount renamed and kept for reference.
+  -- total_amount kept for reference and comparison against the calculated sum.
   total_amount AS original_total_amount,
 
   -- *** FEATURE ENGINEERING: Core Metrics ***
   
-  -- calculated_total_amount: Sum of components to correct errors in the original total_amount.
+  -- calculated_total_amount: Sum of components (including tip) to correct errors in the original total_amount.
   (fare_amount + extra + mta_tax + tip_amount + tolls_amount + improvement_surcharge + congestion_surcharge + Airport_fee) AS calculated_total_amount,
   
   -- trip_duration_minutes: Calculates time in minutes, essential for RPM metric.
   TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE) AS trip_duration_minutes,
 
-  -- revenue_per_minute: The primary KPI for efficiency analysis.
-  (fare_amount + extra + mta_tax + tip_amount + tolls_amount + improvement_surcharge + congestion_surcharge + Airport_fee) / NULLIF(TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE), 0) AS revenue_per_minute
+  -- revenue_per_minute: The primary OPERATIONAL KPI for efficiency analysis (EXCLUDING TIP).
+  (fare_amount + extra + mta_tax + tolls_amount + improvement_surcharge + congestion_surcharge + Airport_fee) / NULLIF(TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE), 0) AS operational_revenue_per_minute
   
 FROM
   `nyc-taxi-478617.2024_data.yellow_tripdata_2024`
@@ -75,5 +75,6 @@ WHERE
   -- Location cleaning: Ensures valid zone IDs (1-263).
   AND PULocationID BETWEEN 1 AND 263
   AND DOLocationID BETWEEN 1 AND 263
+  
   -- Fare/distance sanity check: Filters extreme errors where distance was mislogged
-  AND fare_amount / trip_distance > 1.00
+  AND fare_amount / trip_distance > 1.00;
