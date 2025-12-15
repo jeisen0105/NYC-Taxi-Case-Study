@@ -7,7 +7,7 @@ WITH Surcharge_Revenue AS (
     -- Calculates the funding mechanism (A)
     SELECT
         -- UPDATED to $1.00 Surcharge
-        SUM(t.total_trips_in_segment * 1.00) AS A_Total_Surcharge_Revenue
+        SUM(t.total_trips_in_segment * .90) AS A_Total_Surcharge_Revenue
     FROM
         `nyc-taxi-478617.2024_data.top_10_segments_roi` AS t
 ),
