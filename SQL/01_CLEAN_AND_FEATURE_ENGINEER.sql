@@ -41,7 +41,7 @@ SELECT
   (fare_amount + extra + mta_tax + tip_amount + tolls_amount + improvement_surcharge + congestion_surcharge + Airport_fee) / NULLIF(TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE), 0) AS revenue_per_minute
   
 FROM
-  `nyc-taxi-478617.2024_data.yellow_trips_2024_combined`
+  `nyc-taxi-478617.2024_data.yellow_tripdata_2024`
 WHERE
   -- *** DATA CLEANING AND OUTLIER REMOVAL ***
 
@@ -75,6 +75,5 @@ WHERE
   -- Location cleaning: Ensures valid zone IDs (1-263).
   AND PULocationID BETWEEN 1 AND 263
   AND DOLocationID BETWEEN 1 AND 263
-  
   -- Fare/distance sanity check: Filters extreme errors where distance was mislogged
   AND fare_amount / trip_distance > 1.00
