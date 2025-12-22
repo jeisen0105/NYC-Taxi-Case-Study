@@ -1,5 +1,5 @@
 /*
-  ANALYSIS FILE: 07_PHASE1_TOTAL_REVENUE.sql
+  ANALYSIS FILE: 08_PHASE1_TOTAL_REVENUE.sql
   Purpose: Calculates the two income streams for the Pilot:
            A. Surcharge Revenue (from the Top 10 Cash Cows)
            B. Recovered Revenue (from the Bottom 10 AI Fixes)
