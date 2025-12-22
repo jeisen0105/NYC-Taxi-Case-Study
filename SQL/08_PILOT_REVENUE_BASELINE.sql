@@ -1,5 +1,5 @@
 /*
-  ANALYSIS FILE: 04_PILOT_REVENUE_BASELINE.sql
+  ANALYSIS FILE: 08_PILOT_REVENUE_BASELINE.sql
   Purpose: Identifies the 10 lowest-performing segments (Location + Day of Week) 
            by Revenue Per Minute (RPM) and calculates their total operational revenue.
            This serves as the baseline for the $113.7M revenue optimization pilot.
