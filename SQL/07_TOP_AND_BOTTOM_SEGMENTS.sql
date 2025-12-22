@@ -1,5 +1,5 @@
 /*
-  ANALYSIS FILE: 06_TOP_AND_BOTTOM_SEGMENTS.sql
+  ANALYSIS FILE: 07_TOP_AND_BOTTOM_SEGMENTS.sql
   Purpose: Creates two prioritized lists:
            1. TOP 10 (The Cash Cows): High-earning segments for the surcharge.
            2. BOTTOM 10 (The Cold Spots): Low-earning segments for the AI Pilot.
