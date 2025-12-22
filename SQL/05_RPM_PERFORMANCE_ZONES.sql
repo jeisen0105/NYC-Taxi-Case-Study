@@ -1,42 +1,47 @@
 /*
   ANALYSIS FILE: 05_RPM_PERFORMANCE_ZONES.sql 
-  Purpose: Aggregates performance metrics by Pickup Zone to visualize efficiency on a map.
-           This data is used to classify zones as 'Loss' (Red) or 'Profit' (Green) centers,
-           based on the RPM.
+  Purpose: Groups performance by neighborhood (Zone). 
+           We connect our trip data to map shapes (GeoJSON) to see 
+           which parts of NYC are "Efficiency Cold Spots."
 */
+
 SELECT
-    -- Geographic Identifier 
-    t1.PULocationID AS LocationID,
-    
-    -- Core Metric: Calculate the Zone Median operational RPM
-    APPROX_QUANTILES(t1.operational_revenue_per_minute, 100)[OFFSET(50)] AS median_operational_rpm_per_zone,
-    
-    -- Volume Metric: Total number of trips
-    COUNT(*) AS number_of_rides,
-    
-    -- Zone Name: Grabs the human-readable name for the Zone ID.
-    ANY_VALUE(t3.Zone) AS ZoneName, 
-    
-    -- Geometry for Plotting the Map
-    ANY_VALUE(ST_ASGEOJSON(t2.zone_geom)) AS zone_geojson
+  -- The ID: Which neighborhood are we looking at?
+  t1.PULocationID AS LocationID,
+  
+  -- The Efficiency: What is the Median RPM for this specific area?
+  APPROX_QUANTILES(t1.operational_revenue_per_minute, 100)[OFFSET(50)] AS median_rpm_per_zone,
+  
+  -- The Volume: How busy is this neighborhood?
+  COUNT(*) AS number_of_rides,
+  
+  -- The Name: Get the human-readable name 
+  ANY_VALUE(t3.Zone) AS zone_name, 
+  
+  -- The Shape: Get the map coordinates so we can draw the zone.
+  ANY_VALUE(ST_ASGEOJSON(t2.zone_geom)) AS zone_map_shape
 
 FROM
-    `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t1 
+  `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t1 
+
+-- JOIN 1: We bring in the "Shape Table" so we know how to draw the map.
 INNER JOIN
-    -- Join 1: Geometry table (t2) to get the map shape data.
-    `nyc-taxi-478617.2024_data.taxi_zone_geom` AS t2 
-    ON t1.PULocationID = CAST(t2.zone_id AS INT64)
+  `nyc-taxi-478617.2024_data.taxi_zone_geom` AS t2 
+  ON t1.PULocationID = CAST(t2.zone_id AS INT64)
+
+-- JOIN 2: We bring in the "Name Table" so we know what the neighborhood is called.
 LEFT JOIN
-    -- Join 2: Zone Name Lookup Table (t3) to get the ZoneName.
-    `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS t3 
-    ON t1.PULocationID = t3.LocationID
+  `nyc-taxi-478617.2024_data.taxi_zone_lookup` AS t3 
+  ON t1.PULocationID = t3.LocationID
 
 GROUP BY
-    LocationID 
+  -- Group everything by the Neighborhood ID
+  LocationID 
 
 HAVING
-    -- Filter out zones with very low trip counts that skew the Median RPM calculation.
-    COUNT(*) > 5
+  -- Only show zones that had more than 5 rides 
+  COUNT(*) > 5
 
 ORDER BY
-    median_operational_rpm_per_zone DESC;
+  -- Show the most profitable zones at the top
+  median_rpm_per_zone DESC;
