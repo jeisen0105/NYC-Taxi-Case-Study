@@ -1,30 +1,34 @@
 /*
   ANALYSIS FILE: 04_ESTIMATED_ANNUAL_REVENUE_LOSS.sql
-  Purpose: Quantifies the total revenue opportunity cost by calculating the dollar value 
-           of underperformance relative to the $1.65 citywide operational benchmark.
+  Purpose: Compares total actual revenue against the "Lost Opportunity." 
+           It tells us exactly how big the $113.7M hole is compared to the whole business.
 */
+
 SELECT
-    -- Total Fleet Revenue: Every dollar made by every trip in 2024.
-    ROUND(SUM(t.calculated_total_amount), 2) AS Total_Fleet_Actual_Revenue,
+  -- TOTAL FLEET REVENUE
+  ROUND(SUM(t.calculated_total_amount), 2) AS total_actual_revenue,
 
-    -- 2. Total Revenue Leakage: Only the "lost" money from trips below $1.65.
-    ROUND(SUM(
-        CASE 
-            WHEN t.operational_revenue_per_minute < 1.65 
-            THEN (1.65 - t.operational_revenue_per_minute) * t.trip_duration_minutes 
-            ELSE 0 
-        END
-    ), 2) AS Total_Estimated_Annual_Revenue_Loss,
+  -- THE REVENUE LEAKAGE ($113.7M)
+  -- Logic: IF the trip was slower than $1.65/min, THEN calculate the loss.
+  ROUND(SUM(
+      CASE 
+          WHEN t.operational_revenue_per_minute < 1.65 
+          THEN (1.65 - t.operational_revenue_per_minute) * t.trip_duration_minutes 
+          ELSE 0 
+      END
+  ), 2) AS total_revenue_leakage,
 
-    -- 3. Leakage Percentage: Shows how "significant" the loss is relative to total size.
-    ROUND(
-        (SUM(CASE WHEN t.operational_revenue_per_minute < 1.65 THEN (1.65 - t.operational_revenue_per_minute) * t.trip_duration_minutes ELSE 0 END) / 
-        SUM(t.calculated_total_amount)) * 100, 2
-    ) AS Leakage_Percent_of_Total_Revenue
+  -- THE LEAKAGE PERCENTAGE
+  ROUND(
+      (SUM(CASE WHEN t.operational_revenue_per_minute < 1.65 THEN (1.65 - t.operational_revenue_per_minute) * t.trip_duration_minutes ELSE 0 END) 
+      / 
+      SUM(t.calculated_total_amount)) * 100, 2
+  ) AS leakage_percent_of_total
 
 FROM
-    `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
+  `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS t
 
 WHERE
-    t.trip_duration_minutes > 1.0 
-    AND t.calculated_total_amount > 2.0;
+  -- Standard cleaning to ensure we only count real, high-quality trips
+  t.trip_duration_minutes > 1.0 
+  AND t.calculated_total_amount > 2.0;
