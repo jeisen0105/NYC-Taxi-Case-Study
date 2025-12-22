@@ -1,5 +1,5 @@
 /*
-  ANALYSIS FILE: 04_ESTIMATED_ANNUAL_REVENUE_LOSS.sql
+  ANALYSIS FILE: 02_ESTIMATED_ANNUAL_REVENUE_LOSS.sql
   Purpose: Compares total actual revenue against the "Lost Opportunity." 
            It tells us exactly how big the $113.7M hole is compared to the whole business.
 */
