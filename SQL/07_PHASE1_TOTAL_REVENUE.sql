@@ -1,31 +1,41 @@
 /*
   ANALYSIS FILE: 07_PHASE1_TOTAL_REVENUE.sql
-  PURPOSE: Calculates the Total Project Revenue (A + B) for the Phase 1 Pilot.
+  Purpose: Calculates the two income streams for the Pilot:
+           A. Surcharge Revenue (from the Top 10 Cash Cows)
+           B. Recovered Revenue (from the Bottom 10 AI Fixes)
+           C. The Grand Total (A + B)
 */
 
-WITH Surcharge_Revenue AS (
-    -- Calculates the funding mechanism (A)
+WITH Surcharge_Calculation AS (
+    -- PART A: Funding from the Top 10 segments
     SELECT
-        -- Surcharge Revenue: Total trips * $0.99 Surcharge * 85% Retention Factor
-        SUM(t.total_trips_in_segment * .99 * .85) AS A_Total_Surcharge_Revenue
+        -- Math: (Total Trips * $0.99 Fee) * 85% (assuming some riders switch to subway)
+        SUM(total_trips * 0.99 * 0.85) AS total_surcharge_funding
     FROM
-        `nyc-taxi-478617.2024_data.top_10_segments_roi` AS t
+        `nyc-taxi-478617.2024_data.top_10`
 ),
 
-Recovered_Revenue AS (
-    -- Calculates the profit mechanism (B) 
+Recovery_Calculation AS (
+    -- PART B: Savings from the Bottom 10 segments
     SELECT
-        SUM(
-            b.average_trip_duration_minutes * b.total_trips_in_segment * b.median_operational_rpm_usd_per_min * 0.05
-        ) AS B_Total_Recovered_Revenue
+        -- Math: (Current Total Revenue) * 5% Efficiency Gain
+        -- We estimate the AI can recover 5% of "lost time" in these slow zones.
+        SUM(avg_duration * total_trips * median_rpm * 0.05) AS total_recovered_efficiency
     FROM
-        `nyc-taxi-478617.2024_data.bottom_10_segments_roi` AS b
+        `nyc-taxi-478617.2024_data.bottom_10`
 )
 
--- Combines A and B to get the Total Project Revenue (C)
+-- FINAL STEP: Combine the two buckets into one result
 SELECT
-    S.A_Total_Surcharge_Revenue,
-    R.B_Total_Recovered_Revenue,
-    (S.A_Total_Surcharge_Revenue + R.B_Total_Recovered_Revenue) AS C_Total_Project_Revenue
+    -- Show the Funding total
+    ROUND(S.total_surcharge_funding, 2) AS funding_revenue_usd,
+    
+    -- Show the Recovery total
+    ROUND(R.total_recovered_efficiency, 2) AS recovery_revenue_usd,
+    
+    -- Show the Grand Total
+    ROUND(S.total_surcharge_funding + R.total_recovered_efficiency, 2) AS total_pilot_revenue_usd
+
 FROM
-    Surcharge_Revenue AS S, Recovered_Revenue AS R;
+    Surcharge_Calculation AS S, 
+    Recovery_Calculation AS R;
