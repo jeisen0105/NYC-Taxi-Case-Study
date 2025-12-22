@@ -1,3 +1,12 @@
+/*
+  ANALYSIS FILE: 01_DATA_CLEANING_AND_LOGIC.sql
+  Purpose: Creates the foundational table by filtering for official NYC TLC codes,
+           enforcing positive financial values, and validating surcharge amounts.
+           This version preserves ALL relevant original columns for audit transparency.
+*/
+
+CREATE OR REPLACE TABLE `nyc-taxi-478617.2024_data.yellow_trips_2024_cleaned` AS
+
 SELECT
   -- 1. KEEP ALL ORIGINAL COLUMNS (The Source Data)
   VendorID,
@@ -16,17 +25,16 @@ SELECT
   tip_amount,
   tolls_amount,
   improvement_surcharge,
-  total_amount, -- This is the original meter total
+  total_amount, 
   congestion_surcharge,
   airport_fee,
-  cbd_congestion_fee,
 
   -- CREATE CALCULATED METRICS (The Analysis Data)
   
   -- Create 'calculated_total_amount' 
-  -- We sum all parts manually (including the new CBD fee) to ensure 100% accuracy.
+  -- We sum all parts manually to ensure 100% accuracy.
   (fare_amount + extra + mta_tax + tip_amount + tolls_amount + improvement_surcharge + 
-   congestion_surcharge + airport_fee + IFNULL(cbd_congestion_fee, 0)) AS calculated_total_amount,
+   congestion_surcharge + airport_fee) AS calculated_total_amount,
   
   -- Create 'trip_duration_minutes'
   TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE) AS trip_duration_minutes,
@@ -34,7 +42,7 @@ SELECT
   -- Create 'operational_revenue_per_minute' (RPM)
   -- This is our "Efficiency Metric." We exclude tips because they are optional.
   (fare_amount + extra + mta_tax + tolls_amount + improvement_surcharge + 
-   congestion_surcharge + airport_fee + IFNULL(cbd_congestion_fee, 0)) 
+   congestion_surcharge + airport_fee) 
   / 
   NULLIF(TIMESTAMP_DIFF(tpep_dropoff_datetime, tpep_pickup_datetime, MINUTE), 0) AS operational_revenue_per_minute
   
