@@ -1,5 +1,5 @@
 /*
-  QUERY: 09_TOTAL_OPERATIONAL_REVENUE.sql
+  QUERY: 03_TOTAL_OPERATIONAL_REVENUE.sql
   Purpose: Calculates the EXACT total revenue from all trips in the cleaned table,
            specifically separating Operational (Business) revenue from Tips. 
 */
