@@ -1,25 +1,24 @@
 /*
   ANALYSIS FILE: 02_CITYWIDE_METRICS.sql
-  Purpose: Establishes the core financial and operational benchmarks for the entire dataset.
-           The Citywide Median RPM is used as the defensible policy target ($1.89/min).
+  Purpose: Finds the "Gold Standard" performance metrics for the whole fleet.
+           The Median RPM (approx. $1.65) is our target for an efficient trip.
 */
+
 SELECT
-  -- *** PRIMARY BENCHMARK (Policy Target) ***
-  -- Calculate the Citywide Median OPERATIONAL RPM using APPROX_QUANTILES.
+  -- THE GOLD STANDARD (Median RPM)
+  -- This is the "Benchmark" we use to find the $113.7M revenue leakage.
   APPROX_QUANTILES(operational_revenue_per_minute, 2)[OFFSET(1)] AS citywide_median_operational_rpm,
   
-  -- Calculate the traditional Mean OPERATIONAL RPM.
+  -- THE AVERAGE RPM (Mean)
   AVG(operational_revenue_per_minute) AS citywide_mean_operational_rpm,
 
-  -- Optional: Include the Mean of the full calculated amount (including tip) for context
+  -- THE GROSS RPM (Includes Tips)
   AVG(calculated_total_amount / trip_duration_minutes) AS citywide_mean_gross_rpm,
 
-  -- *** CONTEXTUAL METRICS ***
+  -- TOTAL FLEET VOLUME
+  COUNT(*) AS total_trips_analyzed,
   
-  -- Total number of trips remaining after the initial cleaning
-  COUNT(1) AS total_trips_analyzed,
-  
-  -- Average trip duration across the city
+  -- AVERAGE TRIP TIME
   AVG(trip_duration_minutes) AS average_trip_duration_minutes
 
 FROM
