@@ -13,7 +13,7 @@ The repository is organized into a modular SQL pipeline designed for high-scale 
 
 ### **Phase 1: Data Engineering & Benchmarking**
 * **`01_data_cleaning.sql`**: Enforces financial integrity, validates official TLC codes, and handles time-series outliers.
-* **`02_citywide_benchmarking.sql`**: Establishes the **$1.65 RPM (Revenue Per Minute)** "Gold Standard" using `APPROX_QUANTILES` for statistical median extraction.
+* **`02_citywide_benchmarking.sql`**: Establishes the **$1.64 RPM (Revenue Per Minute)** "Gold Standard" using `APPROX_QUANTILES` for statistical median extraction.
 * **`03_distribution_histogram.sql`**: Discretizes data into $0.10 bins to visualize the "Heavy Right-Tail" efficiency distribution.
 
 ### **Phase 2: Economic Quantization**
